@@ -99,7 +99,11 @@ def setup_resources(api):
         'ManagerConfig': 'config',
         'ManagerRestConfig': 'rest/config',
         'Agents': 'agents',
-        'AgentsName': 'agents/<string:name>'
+        'AgentsName': 'agents/<string:name>',
+        'Operations': 'operations',
+        'OperationsId': 'operations/<string:operation_id>',
+        'TasksGraphs': 'tasks_graphs',
+        'TasksGraphsId': 'tasks_graphs/<string:tasks_graph_id>'
     }
 
     # Set version endpoint as a non versioned endpoint

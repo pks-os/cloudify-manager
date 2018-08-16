@@ -185,7 +185,7 @@ class SQLStorageManager(object):
                 tenant.id for tenant in current_user.all_tenants
                 if utils.tenant_specific_authorization(tenant,
                                                        model_class.__name__)
-                ]
+            ]
         else:
             # Specific tenant only
             tenant_ids = [current_tenant.id] if current_tenant else []
