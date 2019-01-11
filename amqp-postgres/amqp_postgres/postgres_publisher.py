@@ -251,7 +251,7 @@ class DBLogEventPublisher(object):
                 OPERATIONS_EXCHANGE_NAME: ops
             }[exchange]
             target.append(item)
-
+        logger.info('ops %s', len(ops))
         with conn.cursor() as cur:
             self._insert_events(cur, events)
             self._insert_logs(cur, logs)
