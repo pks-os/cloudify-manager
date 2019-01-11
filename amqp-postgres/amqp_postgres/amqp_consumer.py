@@ -19,7 +19,11 @@ import Queue
 import logging
 
 from cloudify.amqp_client import AMQPConnection
-from cloudify.constants import EVENTS_EXCHANGE_NAME, LOGS_EXCHANGE_NAME
+from cloudify.constants import (
+    EVENTS_EXCHANGE_NAME,
+    LOGS_EXCHANGE_NAME,
+    OPERATIONS_EXCHANGE_NAME
+)
 
 
 class AckingAMQPConnection(AMQPConnection):
@@ -55,6 +59,8 @@ class AMQPLogsEventsConsumer(object):
                               durable=True,
                               auto_delete=False)
 
+        self._bind_queue_to_exchange(channel, OPERATIONS_EXCHANGE_NAME,
+                                     'fanout')
         # Binding the logs queue
         self._bind_queue_to_exchange(channel, LOGS_EXCHANGE_NAME, 'fanout')
 
