@@ -87,6 +87,7 @@ class AMQPLogsEventsConsumer(object):
                                 exchange_name,
                                 exchange_type,
                                 routing_key=None):
+        logger.info('Binding exchange %s', exchange_name)
         channel.exchange_declare(exchange=exchange_name,
                                  auto_delete=False,
                                  durable=True,
