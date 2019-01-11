@@ -23,7 +23,11 @@ from threading import Thread, Lock
 import psycopg2
 from psycopg2.extras import execute_values, DictCursor
 from collections import OrderedDict
-from cloudify.constants import EVENTS_EXCHANGE_NAME, LOGS_EXCHANGE_NAME
+from cloudify.constants import (
+    EVENTS_EXCHANGE_NAME,
+    LOGS_EXCHANGE_NAME,
+    OPERATIONS_EXCHANGE_NAME
+)
 
 
 logger = logging.getLogger(__name__)
@@ -233,7 +237,7 @@ class DBLogEventPublisher(object):
         return get_item(message, execution)
 
     def _store(self, conn, items):
-        events, logs = [], []
+        events, logs, ops = [], [], []
 
         acks = []
         for message, exchange, ack in items:
@@ -241,12 +245,17 @@ class DBLogEventPublisher(object):
             item = self._get_db_item(conn, message, exchange)
             if item is None:
                 continue
-            target = events if exchange == EVENTS_EXCHANGE_NAME else logs
+            target = {
+                EVENTS_EXCHANGE_NAME: events,
+                LOGS_EXCHANGE_NAME: logs,
+                OPERATIONS_EXCHANGE_NAME: ops
+            }[exchange]
             target.append(item)
 
         with conn.cursor() as cur:
             self._insert_events(cur, events)
             self._insert_logs(cur, logs)
+            self._update_operations(cur, ops)
         logger.debug('commit %s', len(logs) + len(events))
         conn.commit()
         for ack in acks:
@@ -286,6 +295,11 @@ class DBLogEventPublisher(object):
             return
         execute_values(cursor, LOG_INSERT_QUERY, logs,
                        template=LOG_VALUES_TEMPLATE)
+
+    def _update_operations(self, cur, ops):
+        for op in ops:
+            cur.execute(
+                "UPDATE operations SET state=%(state)s WHERE id=%(id)s", op)
 
     def on_db_connection_error(self, err):
         logger.critical('Database down - cannot continue')
