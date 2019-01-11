@@ -272,8 +272,12 @@ class DBLogEventPublisher(object):
             item = self._get_db_item(conn, message, exchange)
             if item is None:
                 continue
-            insert = (self._insert_events if exchange == EVENTS_EXCHANGE_NAME
-                      else self._insert_logs)
+            insert = {
+                EVENTS_EXCHANGE_NAME: self._insert_events,
+                LOGS_EXCHANGE_NAME: self._insert_logs,
+                OPERATIONS_EXCHANGE_NAME: self._update_operations
+            }[exchange]
+
             try:
                 with conn.cursor() as cur:
                     insert(cur, [item])
