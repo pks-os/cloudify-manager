@@ -298,6 +298,7 @@ class DBLogEventPublisher(object):
 
     def _update_operations(self, cur, ops):
         for op in ops:
+            logger.info('op %s', op)
             cur.execute(
                 "UPDATE operations SET state=%(state)s WHERE id=%(id)s", op)
 

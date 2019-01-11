@@ -73,7 +73,6 @@ class AMQPLogsEventsConsumer(object):
 #        channel.basic_recover(requeue=True)
 
     def process(self, channel, method, properties, body):
-        logger.info('method %s', method.exchange)
         try:
             parsed_body = json.loads(body)
             self._message_processor(parsed_body, method.exchange,
