@@ -222,6 +222,8 @@ class DBLogEventPublisher(object):
         return self._executions_cache[execution_id]
 
     def _get_db_item(self, conn, message, exchange):
+        if exchange == OPERATIONS_EXCHANGE_NAME:
+            return message
         execution_id = message['context']['execution_id']
         execution = self._get_execution(conn, execution_id)
         if execution is None:
