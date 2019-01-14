@@ -24,6 +24,11 @@ RUNNING = 'running'
 NOT_RUNNING = 'not_running'
 
 
+@operation(resumable=True)
+def resumable(**kwargs):
+    ctx.logger.info('hello')
+
+
 @operation
 def provision(**kwargs):
     with update_storage(ctx) as data:
