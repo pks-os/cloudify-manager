@@ -99,6 +99,7 @@ class TestTaskResume(AgentlessTestCase):
         self.execute_on_manager('systemctl start cloudify-mgmtworker')
 
         self.logger.info('Waiting for execution to finish')
+        import pudb; pu.db  # NOQA
         while True:
             new_exec = self.client.executions.get(execution.id)
             if new_exec.status == 'terminated':
