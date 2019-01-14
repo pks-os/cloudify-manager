@@ -23,24 +23,39 @@ class TestTaskResume(AgentlessTestCase):
     def test_resumable_mgmtworker_op(self):
         dsl_path = resource("dsl/resumable_mgmtworker.yaml")
         deployment = self.deploy(dsl_path)
+        instances = self.client.node_instances.list(
+            deployment_id=deployment.id)
+        instance_id = instances[0].id
+
         execution = self.execute_workflow(
             workflow_name='execute_operation',
             wait_for_execution=False,
             deployment_id=deployment.id,
-            parameters={'operation': 'interface1.op1'})
+            parameters={'operation': 'interface1.op1',
+                        'operation_kwargs': {'hello': '123'}})
+
+        self.logger.info('Waiting for operation to start')
         while True:
             logs = self.client.events.list(
                 execution_id=execution.id, include_logs=True)
             if any('WAITING FOR FILE' in log['message'] for log in logs):
                 break
             time.sleep(1)
+
+        self.logger.info('Stopping mgmtworker')
         self.execute_on_manager('systemctl stop cloudify-mgmtworker')
+        self.assertFalse(self.client.node_instances.get(instance_id)
+                         .runtime_properties['resumed'])
+
+        self.logger.info('Restarting mgmtworker')
         self.execute_on_manager('touch /tmp/continue_test')
         self.execute_on_manager('systemctl start cloudify-mgmtworker')
+
+        self.logger.info('Waiting for execution to finish')
         while True:
-            print 'waiting for exec'
             new_exec = self.client.executions.get(execution.id)
-            print 'status', new_exec.status
             if new_exec.status == 'terminated':
                 break
             time.sleep(1)
+        self.assertTrue(self.client.node_instances.get(instance_id)
+                        .runtime_properties['resumed'])

@@ -28,6 +28,10 @@ NOT_RUNNING = 'not_running'
 
 @operation(resumable=True)
 def resumable(**kwargs):
+    with open('/tmp/foo.log', 'w') as f:
+        f.write('{0}\n'.format(kwargs))
+
+    ctx.instance.runtime_properties['resumed'] = False
     while not os.path.exists('/tmp/continue_test'):
         ctx.logger.info('WAITING FOR FILE')
         time.sleep(1)
