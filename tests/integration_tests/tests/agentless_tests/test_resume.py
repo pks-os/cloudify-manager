@@ -31,5 +31,16 @@ class TestTaskResume(AgentlessTestCase):
         while True:
             logs = self.client.events.list(
                 execution_id=execution.id, include_logs=True)
-            print 'meesages are', list(logs)
+            if any('WAITING FOR FILE' in log['message'] for log in logs):
+                break
+            time.sleep(1)
+        self.execute_on_manager('systemctl stop cloudify-mgmtworker')
+        self.execute_on_manager('touch /tmp/continue_test')
+        self.execute_on_manager('systemctl start cloudify-mgmtworker')
+        while True:
+            print 'waiting for exec'
+            new_exec = self.client.executions.get(execution.id)
+            print 'status', new_exec.status
+            if new_exec.status == 'terminated':
+                break
             time.sleep(1)
