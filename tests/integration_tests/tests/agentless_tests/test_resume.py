@@ -31,6 +31,8 @@ class TestTaskResume(AgentlessTestCase):
         while True:
             logs = self.client.events.list(
                 execution_id=execution.id, include_logs=True)
+            messages = [log['message'] for log in logs]
+            print 'meesages are', messages
             if any('WAITING FOR FILE' in log['message'] for log in logs):
                 break
             time.sleep(1)
