@@ -33,7 +33,7 @@ class TestTaskResume(AgentlessTestCase):
             workflow_name='execute_operation',
             wait_for_execution=False,
             deployment_id=deployment.id,
-            parameters={'operation': 'interface1.op1',
+            parameters={'operation': 'interface1.op_resumable',
                         'operation_kwargs': {
                             'wait_message': wait_message,
                             'target_file': target_file
@@ -74,7 +74,7 @@ class TestTaskResume(AgentlessTestCase):
             workflow_name='execute_operation',
             wait_for_execution=False,
             deployment_id=deployment.id,
-            parameters={'operation': 'interface1.op1',
+            parameters={'operation': 'interface1.op_nonresumable',
                         'operation_kwargs': {
                             'wait_message': wait_message,
                             'target_file': target_file

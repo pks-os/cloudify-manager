@@ -10,4 +10,5 @@ node_templates:
     type: cloudify.nodes.Root
     interfaces:
       interface1:
-        op1: cloudmock.cloudmock.tasks.resumable
+        op_resumable: cloudmock.cloudmock.tasks.resumable
+        op_nonresumable: cloudmock.cloudmock.tasks.nonresumable
