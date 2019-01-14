@@ -29,6 +29,7 @@ class TestTaskResume(AgentlessTestCase):
             deployment_id=deployment.id,
             parameters={'operation': 'interface1.op1'})
         while True:
-            logs = self.client.events.list(execution.id, include_logs=True)
+            logs = self.client.events.list(
+                execution_id=execution.id, include_logs=True)
             print logs
             time.sleep(1)
