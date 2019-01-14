@@ -31,7 +31,7 @@ def resumable(**kwargs):
     while not os.path.exists('/tmp/continue_test'):
         ctx.logger.info('WAITING FOR FILE')
         time.sleep(1)
-    ctx.node_instance.runtime_properties['resumed'] = True
+    ctx.instance.runtime_properties['resumed'] = True
 
 
 @operation
