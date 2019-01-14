@@ -29,7 +29,7 @@ NOT_RUNNING = 'not_running'
 @operation(resumable=True)
 def resumable(ctx, wait_message, target_file):
     ctx.instance.runtime_properties['resumed'] = False
-    ctx.instance.runtime_properties.update()
+    ctx.instance.update()
     while not os.path.exists(target_file):
         ctx.logger.info(wait_message)
         time.sleep(1)
