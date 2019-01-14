@@ -35,8 +35,14 @@ def _resumable_task_base(ctx, wait_message, target_file):
     ctx.instance.runtime_properties['resumed'] = True
 
 
-resumable = operation(resumable=True)(_resumable_task_base)
-nonresumable = operation(resumable=False)(_resumable_task_base)
+@operation(resumable=True)
+def resumable(**kwargs):
+    _resumable_task_base(**kwargs)
+
+
+@operation(resumable=False)
+def nonresumable(**kwargs):
+    _resumable_task_base(**kwargs)
 
 
 @operation
