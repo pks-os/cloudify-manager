@@ -53,6 +53,8 @@ class TestResumeMgmtworker(AgentlessTestCase):
 
         self.logger.info('Restarting mgmtworker')
         self.execute_on_manager('touch {0}'.format(self.target_file))
+        self.addCleanup(self.execute_on_manager,
+                        'rm -rf {0}'.format(self.target_file))
         self.execute_on_manager('systemctl start cloudify-mgmtworker')
 
     def test_resumable_mgmtworker_op(self):
