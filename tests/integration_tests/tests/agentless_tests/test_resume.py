@@ -80,6 +80,7 @@ class TestResumeMgmtworker(AgentlessTestCase):
                 time.sleep(1)
                 continue
             self.assertEqual(new_exec.status, 'terminated')
+            break
         self.assertTrue(self.client.node_instances.get(instance.id)
                         .runtime_properties['resumed'])
         self.assertTrue(self.client.node_instances.get(instance2.id)
@@ -102,6 +103,7 @@ class TestResumeMgmtworker(AgentlessTestCase):
                 time.sleep(1)
                 continue
             self.assertEqual(new_exec.status, 'failed')
+            break
         self.assertFalse(self.client.node_instances.get(instance.id)
                          .runtime_properties['resumed'])
         self.assertNotIn(
