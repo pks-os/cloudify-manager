@@ -92,7 +92,7 @@ class TestResumeMgmtworker(AgentlessTestCase):
             deployment_id=dep.id, node_id='node1')[0]
         instance2 = self.client.node_instances.list(
             deployment_id=dep.id, node_id='node2')[0]
-        execution = self._start_execution(dep, 'interface1.op_resumable')
+        execution = self._start_execution(dep, 'interface1.op_nonresumable')
         self._wait_for_log(execution)
 
         self._restart_mgmtworker()
