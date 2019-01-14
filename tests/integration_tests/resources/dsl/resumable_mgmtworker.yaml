@@ -19,3 +19,6 @@ node_templates:
       interface1:
         op_resumable: cloudmock.cloudmock.tasks.mark_instance
         op_nonresumable: cloudmock.cloudmock.tasks.mark_instance
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: node1
