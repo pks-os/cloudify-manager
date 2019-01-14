@@ -21,6 +21,8 @@ from integration_tests.tests.utils import get_resource as resource
 class TestTaskResume(AgentlessTestCase):
 
     def test_resumable_mgmtworker_op(self):
+        wait_message = 'WAITING FOR FILE'
+        target_file = '/tmp/continue_test'
         dsl_path = resource("dsl/resumable_mgmtworker.yaml")
         deployment = self.deploy(dsl_path)
         instances = self.client.node_instances.list(
@@ -32,13 +34,16 @@ class TestTaskResume(AgentlessTestCase):
             wait_for_execution=False,
             deployment_id=deployment.id,
             parameters={'operation': 'interface1.op1',
-                        'operation_kwargs': {'hello': '123'}})
+                        'operation_kwargs': {
+                            'wait_message': wait_message,
+                            'target_file': target_file
+                        }})
 
         self.logger.info('Waiting for operation to start')
         while True:
             logs = self.client.events.list(
                 execution_id=execution.id, include_logs=True)
-            if any('WAITING FOR FILE' in log['message'] for log in logs):
+            if any(wait_message == log['message'] for log in logs):
                 break
             time.sleep(1)
 
@@ -48,7 +53,7 @@ class TestTaskResume(AgentlessTestCase):
                          .runtime_properties['resumed'])
 
         self.logger.info('Restarting mgmtworker')
-        self.execute_on_manager('touch /tmp/continue_test')
+        self.execute_on_manager('touch {0}'.format(target_file))
         self.execute_on_manager('systemctl start cloudify-mgmtworker')
 
         self.logger.info('Waiting for execution to finish')
