@@ -87,6 +87,9 @@ class TestResumeMgmtworker(AgentlessTestCase):
                         .runtime_properties['marked'])
 
     def test_nonresumable_mgmtworker_op(self):
+        # start a workflow, stop mgmtworker, restart mgmtworker, check that
+        # the operation which is nonresumable did not run again, and the
+        # dependent operation didn't run either
         dep = self._create_deployment()
         instance = self.client.node_instances.list(
             deployment_id=dep.id, node_id='node1')[0]
