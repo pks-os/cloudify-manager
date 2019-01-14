@@ -70,6 +70,10 @@ class TestTaskResume(AgentlessTestCase):
         target_file = '/tmp/continue_test'
         dsl_path = resource("dsl/resumable_mgmtworker.yaml")
         deployment = self.deploy(dsl_path)
+        instances = self.client.node_instances.list(
+            deployment_id=deployment.id)
+        instance_id = instances[0].id
+
         execution = self.execute_workflow(
             workflow_name='execute_operation',
             wait_for_execution=False,
@@ -100,3 +104,5 @@ class TestTaskResume(AgentlessTestCase):
             if new_exec.status == 'terminated':
                 break
             time.sleep(1)
+        self.assertFalse(self.client.node_instances.get(instance_id)
+                         .runtime_properties['resumed'])
