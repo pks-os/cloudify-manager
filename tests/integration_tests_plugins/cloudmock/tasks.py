@@ -13,6 +13,8 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
+import os
+import time
 from cloudify.decorators import operation
 from cloudify.exceptions import NonRecoverableError
 from cloudify import ctx
@@ -26,7 +28,10 @@ NOT_RUNNING = 'not_running'
 
 @operation(resumable=True)
 def resumable(**kwargs):
-    ctx.logger.info('hello')
+    while not os.path.exists('/tmp/continue_test'):
+        ctx.logger.info('WAITING FOR FILE')
+        time.sleep(1)
+    ctx.node_instance.runtime_properties['resumed'] = True
 
 
 @operation

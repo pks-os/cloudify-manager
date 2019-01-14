@@ -13,6 +13,7 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
+import time
 from integration_tests import AgentlessTestCase
 from integration_tests.tests.utils import get_resource as resource
 
@@ -24,7 +25,10 @@ class TestTaskResume(AgentlessTestCase):
         deployment = self.deploy(dsl_path)
         execution = self.execute_workflow(
             workflow_name='execute_operation',
-            wait_for_execution=True,
+            wait_for_execution=False,
             deployment_id=deployment.id,
             parameters={'operation': 'interface1.op1'})
-        print execution
+        while True:
+            logs = self.client.events.list(execution.id, include_logs=True)
+            print logs
+            time.sleep(1)
