@@ -32,6 +32,7 @@ class TestResumeMgmtworker(AgentlessTestCase):
             wait_for_execution=False,
             deployment_id=deployment.id,
             parameters={'operation': operation,
+                        'run_by_dependency_order': True,
                         'operation_kwargs': {
                             'wait_message': self.wait_message,
                             'target_file': self.target_file
@@ -55,13 +56,22 @@ class TestResumeMgmtworker(AgentlessTestCase):
         self.execute_on_manager('systemctl start cloudify-mgmtworker')
 
     def test_resumable_mgmtworker_op(self):
+        # start a workflow, stop mgmtworker, restart mgmtworker, check that
+        # one operation was resumed and another was other executed
         dep = self._create_deployment()
-        instance = self.client.node_instances.list(deployment_id=dep.id)[0]
+        instance = self.client.node_instances.list(
+            deployment_id=dep.id, node_id='node1')[0]
+        instance2 = self.client.node_instances.list(
+            deployment_id=dep.id, node_id='node2')[0]
         execution = self._start_execution(dep, 'interface1.op_resumable')
         self._wait_for_log(execution)
 
         self.assertFalse(self.client.node_instances.get(instance.id)
                          .runtime_properties['resumed'])
+        self.assertNotIn(
+            'marked',
+            self.client.node_instances.get(instance2.id).runtime_properties)
+
         self._restart_mgmtworker()
         self.logger.info('Waiting for the execution to finish')
         while True:
@@ -72,10 +82,15 @@ class TestResumeMgmtworker(AgentlessTestCase):
             self.assertEqual(new_exec.status, 'terminated')
         self.assertTrue(self.client.node_instances.get(instance.id)
                         .runtime_properties['resumed'])
+        self.assertTrue(self.client.node_instances.get(instance2.id)
+                        .runtime_properties['marked'])
 
     def test_nonresumable_mgmtworker_op(self):
         dep = self._create_deployment()
-        instance = self.client.node_instances.list(deployment_id=dep.id)[0]
+        instance = self.client.node_instances.list(
+            deployment_id=dep.id, node_id='node1')[0]
+        instance2 = self.client.node_instances.list(
+            deployment_id=dep.id, node_id='node2')[0]
         execution = self._start_execution(dep, 'interface1.op_resumable')
         self._wait_for_log(execution)
 
@@ -89,3 +104,6 @@ class TestResumeMgmtworker(AgentlessTestCase):
             self.assertEqual(new_exec.status, 'failed')
         self.assertFalse(self.client.node_instances.get(instance.id)
                          .runtime_properties['resumed'])
+        self.assertNotIn(
+            'marked',
+            self.client.node_instances.get(instance2.id).runtime_properties)

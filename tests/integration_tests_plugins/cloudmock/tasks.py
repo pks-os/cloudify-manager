@@ -40,6 +40,11 @@ nonresumable = operation(resumable=False)(_resumable_task_base)
 
 
 @operation
+def mark_instance(ctx, **kwargs):
+    ctx.instance.runtime_properties['marked'] = True
+
+
+@operation
 def provision(**kwargs):
     with update_storage(ctx) as data:
         machines = data.get('machines', {})
